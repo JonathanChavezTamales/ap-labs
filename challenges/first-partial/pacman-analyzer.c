@@ -49,7 +49,12 @@ int main(int argc, char **argv) {
 	return 1;
     }
 
-    analizeLog(argv[1], REPORT_FILE);
+    if(argc > 5 && strcmp(argv[3], "-input") == 0 && strcmp(argv[5], "-report") == 0){
+    	analizeLog(argv[4], argv[6]);
+    }
+    else{
+	analizeLog(argv[2], REPORT_FILE);
+    }
 
     return 0;
 }
