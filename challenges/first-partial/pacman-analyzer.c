@@ -53,7 +53,8 @@ int main(int argc, char **argv) {
     	analizeLog(argv[2], argv[4]);
     }
     else{
-	analizeLog(argv[2], REPORT_FILE);
+	printf("Error: there are missing flags\n ");
+	return 1;
     }
 
     return 0;
@@ -70,7 +71,7 @@ void analizeLog(char *logFile, char *report) {
 	
 
 	if(fptr == NULL){
-		printf("Log file non existent");
+		printf("Log file non existent \n");
 		exit(1);
 	}
 
