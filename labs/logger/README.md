@@ -17,6 +17,13 @@ int errorf(const char *format, ...)
 int panicf(const char *format, ...)
 ```
 
+## Steps to run
+
+1. Compile the library with gcc to get an object file.
+2. Compile the source code that uses the functions.
+3. Amazing, now you have to link them.
+4. Profit.
+
 General instructions
 --------------------
 - Use the `logger.c` file for your implementation.
