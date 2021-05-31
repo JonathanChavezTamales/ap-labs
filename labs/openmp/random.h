@@ -1,3 +1,3 @@
-double random();
+double trandom();
 void seed(double low_in, double hi_in);
 

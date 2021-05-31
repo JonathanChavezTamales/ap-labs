@@ -1,4 +1,9 @@
+#include <stdio.h>
+#include <omp.h>
 
 int main() {
-    return 0;
+	#pragma omp parallel
+	{
+		printf("Hello world!");
+	}
 }

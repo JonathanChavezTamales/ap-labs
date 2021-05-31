@@ -91,6 +91,7 @@ History:
 
 static long num_trials = 1000000;
 
+
 int main ()
 {
     long i;  long Ncirc = 0;
@@ -101,8 +102,8 @@ int main ()
 
     for(i=0;i<num_trials; i++)
 	{
-	    x = random();
-	    y = random();
+	    x = trandom();
+	    y = trandom();
 
 	    test = x*x + y*y;
 
@@ -110,7 +111,7 @@ int main ()
 	}
 
     pi = 4.0 * ((double)Ncirc/(double)num_trials);
-
+    printf("Ncirc , %i", Ncirc);
     printf("\n %d trials, pi is %f \n",num_trials, pi);
 
     return 0;

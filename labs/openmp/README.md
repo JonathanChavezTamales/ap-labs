@@ -31,3 +31,12 @@ How to submit your work
 GITHUB_USER=<your_github_user>  make submit
 ```
 More details at: [Classify API](../../classify.md)
+
+
+## How to run
+
+Since I developed the solutions in a Mac, OSX internally links gcc to clang and clang does not support OpenMP. So I had to compile my code with `clang -Xpreprocessor -fopenmp FILENAME.c -lomp`.
+
+Previously, I had to install llvm and libomp with brew.
+
+Also I had to modify the random library since I already have another in the system and the types clashed.

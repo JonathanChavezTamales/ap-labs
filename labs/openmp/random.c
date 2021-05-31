@@ -33,7 +33,7 @@ static long PMOD        = 714025;
 long random_last = 0.0;
 double random_low, random_hi;
 
-double random()
+double trandom()
 {
     long random_next;
     double ret_val;
