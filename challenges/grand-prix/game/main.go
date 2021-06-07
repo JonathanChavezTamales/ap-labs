@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 	"math"
+	"sort"
 )
 
 type vehicle interface {
@@ -21,9 +22,24 @@ type Car struct {
 	CurrentGear    int    `json:"currentGear"`
 	CurrentDistance int    `json:"currentDistance"`
 	Revs int
+	FinishTime int
+	Finished bool
 }
 
 func (car *Car) accelerate() {
+
+	// Stop if finished
+	if car.FinishTime != 0 {
+		wgDrivers.Done()
+		return
+	}
+
+	if car.CurrentDistance >= race.laps * race.lapDistance {
+		wgDrivers.Done()
+		car.FinishTime = globalTime
+		fmt.Println(car.Driver , globalTime)
+		return
+	}
 
 	// If there is a turn, decelerate
 	for _, turn := range(race.turns) {
@@ -126,8 +142,8 @@ type Race struct {
 	laps int
 	turns []int
 	lapDistance int
-	finished bool
 	time int
+	results []*Car
 }
 
 func (race *Race) print() {
@@ -135,25 +151,47 @@ func (race *Race) print() {
 		for i := 0; i< car.CurrentDistance/100; i++{
 			fmt.Printf("#")
 		}
-		fmt.Printf("-%s (%d, %d, %d)\n", car.Driver, car.Lane, car.CurrentDistance, car.CurrentGear)
+		fmt.Printf("-%s (LN:%d, LAP:%d, %d)\n", car.Driver, car.Lane, car.CurrentDistance/race.lapDistance, car.FinishTime)
 	}
 	fmt.Printf("\n\n\n\n\n")
 
 }
 
+func (race *Race) finished(time int) bool {
+	allFinished := true
+	for i:=0; i<len(cars); i++ {
+		car := cars[i]
+		if car.CurrentDistance >= race.lapDistance * race.laps{
+			fmt.Println(car.Driver,"finished", car.FinishTime)
+		} else {
+			allFinished = false
+		}
+	}
+	return allFinished
+}
+
+func (race *Race) printResults() {
+	fmt.Println("END OF RACE!")
+	sort.Slice(cars, func(i, j int) bool {
+		return cars[i].FinishTime < cars[j].FinishTime
+	})
+	for i, car := range(cars) {
+		fmt.Println(i," - ", car.Driver, " - ", car.Team)
+	}
+}
+
 var race = Race {
 	name: "Mexico GP",
-	laps: 30,
+	laps: 1,
 	turns: []int{230, 2090, 5500, 5900, 6199, 7680},
-	lapDistance: 2300,
-	finished: false,
+	lapDistance: 9300,
 	time: 0,
 }
 
 var cars = []Car{
 	Car {
-		Driver: "J. Chávez",
-		Team: "Ferrari",
+		Driver: "F. Alonso",
+		Team: "Alpine",
 		GearSpeeds: []int{0, 50, 65, 70, 90, 120},
 		Lane: 0,
 		CurrentGear: 0,
@@ -177,31 +215,31 @@ var cars = []Car{
 	},
 	Car {
 		Driver: "L. Hamilton",
-		Team: "Red Bull",
+		Team: "McLaren",
 		GearSpeeds: []int{0, 30, 50, 75, 83, 100, 122},
 		Lane: 1,
 		CurrentGear: 0,
 		CurrentDistance: 100,
 	},
 	Car {
-		Driver: "E. Musk",
-		Team: "Tesla",
+		Driver: "C. Leclerc",
+		Team: "Ferrari",
 		GearSpeeds: []int{0, 40, 70, 95, 120, 120, 122},
 		Lane: 1,
 		CurrentGear: 0,
 		CurrentDistance: 200,
 	},
 	Car {
-		Driver: "Juan",
-		Team: "America",
+		Driver: "P. Gasly",
+		Team: "Alpha Tauri",
 		GearSpeeds: []int{0, 10, 30, 45, 90, 135, 160},
 		Lane: 0,
 		CurrentGear: 0,
 		CurrentDistance: 300,
 	},
 	Car {
-		Driver: "Marcial Maciel",
-		Team: "Tesla",
+		Driver: "S. Vettel",
+		Team: "Aston Martin",
 		GearSpeeds: []int{0, 70, 98, 110, 112, 113},
 		Lane: 1,
 		CurrentGear: 0,
@@ -210,25 +248,34 @@ var cars = []Car{
 }
 
 var wgDrivers sync.WaitGroup
+var globalTime int
 
 func main() {
 	fmt.Println(race.name)
 	race.print()
 
+	var racers int
+	fmt.Println("Racers (1-7)")
+	_, err := fmt.Scanf("%d", &racers)
+	if err != nil || racers > 7 {
+		panic(err)
+	}
 
-	for step := 0; step < 100; step++ {
+	for step := 0; ; step++ {
 
-		wgDrivers.Add(len(cars))
-		cars[0].accelerate()
-		cars[1].accelerate()
-		cars[2].accelerate()
-		cars[3].accelerate()
-		cars[4].accelerate()
-		cars[5].accelerate()
-		cars[6].accelerate()
+		globalTime = step
+		wgDrivers.Add(racers)
+		for i := 0; i<racers; i++ {
+			cars[i].accelerate()
+		}
 
 		wgDrivers.Wait()
 		race.print()
+		finished := race.finished(step)
+		if finished {
+			race.printResults()
+			break
+		}
 		time.Sleep(75 * time.Millisecond)
 	}
 
