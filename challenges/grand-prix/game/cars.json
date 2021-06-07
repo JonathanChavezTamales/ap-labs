@@ -1,0 +1,14 @@
+{ 
+	"cars":[
+		{
+			"driver":"J. Chávez",
+			"team":"Ferrari",
+			"shiftSpeeds":[0, 10, 20, 30, 50],
+			"currentShift":0,
+			"currentDistance":20
+		}
+	],
+	"race": {
+		"distance":2300
+	}
+}
